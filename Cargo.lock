@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "web-sandbox"
+name = "rust-web-sandbox"
 version = "0.1.0"
