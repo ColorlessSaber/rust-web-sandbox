@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
             .service(echo)
             .route("/hey", web::get().to(manual_hello)) // configure route path
     })
-        .bind("127.0.0.1:8080")? // binds to socket address and listens
-        .run().await
+        .bind(("127.0.0.1", 8080))? // binds to socket address and listens
+        .run()
+        .await
 }
