@@ -1,7 +1,7 @@
-// // ~~~ Basic Example ~~~
-// /*
-// Basic example of an Application
-//  */
+// ~~~ Basic Example ~~~
+/*
+Basic example of an Application
+ */
 // use actix_web::{web, App, HttpServer, Responder};
 //
 // async fn index() -> impl Responder {
@@ -36,10 +36,10 @@
 //         .await
 // }
 
-// // ~~~ State Example ~~~
-// /*
-// Application state is shared within all routes and resources within the same scope.
-//  */
+// ~~~ State Example ~~~
+/*
+Application state is shared within all routes and resources within the same scope.
+ */
 // use actix_web::{get, web, App, HttpServer};
 //
 // struct AppState {
