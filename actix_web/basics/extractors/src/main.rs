@@ -132,51 +132,51 @@ curl -X GET "http://127.0.0.1:8080/?username=legends2000&password=Sonic1234_Pass
 /*
 The Json<T> deserialize the body of the request into a struct.
  */
-use actix_web::{web, App, post, error, HttpServer, Result, HttpResponse};
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-struct Info {
-    username: String,
-}
-
-#[post("/submit")]
-async fn submit(info: web::Json<Info>) -> Result<String> {
-    Ok(format!("Welcome {}!", info.username))
-}
-
-// Some extractors can be configured for the extraction process. This is done by
-// passing a configuration object to the resource's .app_data() method.
-// For json extractor it returns JsonConfig. This can be used to maximum size of the JSON payload
-// and custom error handler.
-
-async fn json_index(info: web::Json<Info>) -> Result<String> {
-    Ok(format!("Welcome {}!", info.username))
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
-        let json_config = web::JsonConfig::default()
-            .limit(4096)
-            .error_handler(|err, _req| {
-                // create a custom error response
-                error::InternalError::from_response(err, HttpResponse::Conflict().finish())
-                    .into()
-            });
-
-        App::new()
-            .service(submit)
-            .service(
-                web::resource("/json")
-                    .app_data(json_config)
-                    .route(web::post().to(json_index))
-            )
-    })
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
-}
+// use actix_web::{web, App, post, error, HttpServer, Result, HttpResponse};
+// use serde::Deserialize;
+//
+// #[derive(Deserialize)]
+// struct Info {
+//     username: String,
+// }
+//
+// #[post("/submit")]
+// async fn submit(info: web::Json<Info>) -> Result<String> {
+//     Ok(format!("Welcome {}!", info.username))
+// }
+//
+// // Some extractors can be configured for the extraction process. This is done by
+// // passing a configuration object to the resource's .app_data() method.
+// // For json extractor it returns JsonConfig. This can be used to maximum size of the JSON payload
+// // and custom error handler.
+//
+// async fn json_index(info: web::Json<Info>) -> Result<String> {
+//     Ok(format!("Welcome {}!", info.username))
+// }
+//
+// #[actix_web::main]
+// async fn main() -> std::io::Result<()> {
+//     HttpServer::new(|| {
+//         let json_config = web::JsonConfig::default()
+//             .limit(4096)
+//             .error_handler(|err, _req| {
+//                 // create a custom error response
+//                 error::InternalError::from_response(err, HttpResponse::Conflict().finish())
+//                     .into()
+//             });
+//
+//         App::new()
+//             .service(submit)
+//             .service(
+//                 web::resource("/json")
+//                     .app_data(json_config)
+//                     .route(web::post().to(json_index))
+//             )
+//     })
+//         .bind(("127.0.0.1", 8080))?
+//         .run()
+//         .await
+// }
 
 /*
 To test /submit use the following cURL command:
@@ -191,3 +191,129 @@ curl -X POST http://127.0.0.1:8080/json -H "Content-Type: application/json" -d '
  */
 
 // ~~~ URL-Encoded Forms ~~~
+/*
+The web::Form<T> works similar to the Json<T>. it takes a URL-encoded form body and extract
+it to a struct.
+ */
+// use actix_web::{ web, App, post, HttpServer, Result};
+// use serde::{Deserialize, };
+//
+// #[derive(Deserialize)]
+// struct FormData {
+//     username: String,
+// }
+//
+// // This handler gets called only if the content type is an "x-www-form-urlencoded"
+// // and the content of the request could be deserialized to a "FormData" struct.
+// #[post("/")]
+// async fn index(form: web::Form<FormData>) -> Result<String> {
+//     Ok(format!("Hello {}!", form.username))
+// }
+//
+// // if the form body is optional, you can wrap the extractor in an Option-enum. This
+// // also allows you the handle invalid input.
+// #[post("/maybe")]
+// async fn maybe(form: Option<web::Form<FormData>>) -> Result<String> {
+//     let Some(form) = form else {
+//         return Ok("Missing or invalid form data".to_string())
+//     };
+//
+//     Ok(format!("Hello {}!", form.username))
+// }
+//
+// #[actix_web::main]
+// async fn main() -> std::io::Result<()> {
+//     HttpServer::new(|| {
+//         App::new()
+//             .service(index)
+//             .service(maybe)
+//     })
+//         .bind(("127.0.0.1", 8080))?
+//         .run()
+//         .await
+// }
+
+/*
+To test "/" use the following cURL command:
+```
+curl -d "username=sonic1234" http://127.0.0.1:8080/
+```
+
+To test "/maybe" use the following cURL command:
+```
+# for valid response
+curl -d "username=sonic1234" http://127.0.0.1:8080/maybe
+
+# for invalid response
+curl -d "password=1234"  http://127.0.0.1:8080/maybe
+```
+ */
+
+// ~~~ Application State Extractor ~~~
+/*
+Using the web::Data extractor allows you to access the Application state. But! The state is
+read-only reference. If you require a mutable access to state you need to set it up as such.
+ */
+use actix_web::{ web, App, HttpServer, Responder};
+use std::{
+    cell::Cell,
+    sync::Arc,
+    sync::atomic::{AtomicUsize, Ordering},
+};
+
+#[derive(Clone)]
+struct AppState {
+    count: Cell<usize>,
+    global_count: Arc<AtomicUsize>,
+}
+
+async fn show_count(data: web::Data<AppState>) -> impl Responder {
+    format!(
+        "global count: {}\nlocal count: {}\n",
+        data.global_count.load(Ordering::Relaxed),
+        data.count.get()
+    )
+}
+
+async fn add_one(data: web::Data<AppState>) -> impl Responder {
+    data.global_count.fetch_add(1, Ordering::Relaxed);
+
+    let count = data.count.get();
+    data.count.set(count + 1);
+
+    format!(
+        "global count: {}\nlocal count: {}\n",
+        data.global_count.load(Ordering::Relaxed),
+        data.count.get()
+    )
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let data = AppState {
+        count: Cell::new(0),
+        global_count: Arc::new(AtomicUsize::new(0)),
+    };
+
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(data.clone()))
+            .route("/show_count", web::get().to(show_count))
+            .route("/add", web::get().to(add_one))
+    })
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
+}
+
+/*
+To test "/show_count" use the following cURL command:
+```
+curl -X GET "http://127.0.0.1:8080/show_count"
+```
+
+To test "/add" use the following cURL command:
+```
+curl -X GET "http://127.0.0.1:8080/add"
+```
+ */
