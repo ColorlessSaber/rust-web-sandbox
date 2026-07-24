@@ -275,7 +275,7 @@ async fn show_count(data: web::Data<AppState>) -> impl Responder {
     )
 }
 
-async fn add_one(data: web::Data<AppState>) -> impl Responder {
+async fn add(data: web::Data<AppState>) -> impl Responder {
     data.global_count.fetch_add(1, Ordering::Relaxed);
 
     let count = data.count.get();
@@ -299,7 +299,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(data.clone()))
             .route("/show_count", web::get().to(show_count))
-            .route("/add", web::get().to(add_one))
+            .route("/add", web::get().to(add))
     })
         .bind(("127.0.0.1", 8080))?
         .run()
@@ -314,6 +314,6 @@ curl -X GET "http://127.0.0.1:8080/show_count"
 
 To test "/add" use the following cURL command:
 ```
-curl -X GET "http://127.0.0.1:8080/add"
+curl -X GET http://127.0.0.1:8080/add?[1-5]
 ```
  */
