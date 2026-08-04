@@ -11,3 +11,4 @@ Actix Web.
    5. Handlers -- Learning and creating custom request handlers.
 2. Advanced
    1. Errors -- Understanding the custom Error type and ResponseError trait.
+   2. URL Dispatch -- How to create proper URL to handler pattern matching.
