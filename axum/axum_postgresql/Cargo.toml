@@ -1,0 +1,15 @@
+[package]
+name = "axum_postgresql"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = {version = "1.0.229", features = ["derive"]}
+tokio = {version = "1.53.1", features = ["full"]}
+axum = {version = "0.8.9"}
+sqlx = {version = "0.9.0", features = ["runtime-tokio", "postgres", "time"]}
+dotenvy = {version = "0.15.7"}
+log = {version = "0.4.33"}
+pretty_env_logger = {version = "0.5.0"}
+async-trait = {version = "0.1.92"}
+thiserror = {version = "2.0.20"}
