@@ -7,16 +7,6 @@ mod book_db_tests {
         database_queries::queries_for_book_db::*,
     };
 
-    async fn cleanup_database() {
-        // Code that cleans up the database after each test.
-        from_filename(".env.test").expect("Failed to load .env.test file");
-        let pool = PgPool::connect(
-            &std::env::var("DATABASE_URL").expect("DATABASE_URL not set"),
-        ).await.unwrap();
-
-        sqlx::query!("TRUNCATE book_db").execute(&pool).await.unwrap();
-    }
-
     #[tokio::test]
     async fn should_successfully_create_new_book() -> Result<(), String>{
         from_filename(".env.test").expect("Failed to load .env.test file");
