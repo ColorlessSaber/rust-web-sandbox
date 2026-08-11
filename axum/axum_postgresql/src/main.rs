@@ -3,8 +3,9 @@ extern crate pretty_env_logger;
 
 use std::sync::Arc;
 use axum::{
-    routing::{post, },
+    routing::{post, get},
     Router,
+    serve,
 };
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
@@ -36,8 +37,23 @@ async fn main() {
 
     let app_state = AppState { book_db };
     let app = Router::new()
+        .route("/hello", get(hello_world))
         .route("/new_book", post(create_new_book_entry))
         .with_state(app_state);
 
-    println!("Hello, world!");
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
+        .await
+        .unwrap();
+
+    serve::serve(listener, app).await.unwrap();
 }
+
+/*
+To test /new_book use the cURL command:
+```
+curl --location 'localhost:8000/new_book' --header 'Content-Type: application/json' \
+--data '{"title": "cant spell treason without tea", "author": "Rebecca thorne", "genre": "fantasy"}'
+```
+it will return what was just submitted with the id number it has in the SQL database.
+
+ */

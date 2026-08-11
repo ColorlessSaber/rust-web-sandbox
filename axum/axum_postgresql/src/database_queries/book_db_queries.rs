@@ -26,7 +26,7 @@ impl BookDbImpl {
 #[async_trait]
 impl BookDbCrud for BookDbImpl {
     async fn create(&self, query_info: Book) -> Result<BookDetail, DBError> {
-        let query_result = sqlx::query!( // this is a "reminder" warning; will work if sqlx setup is correct
+        let query_result = sqlx::query!( // this is a "reminder" warning; will work if sqlx is setup correctly
             r#"
             INSERT INTO book_db (title, author, genre)
             VALUES ($1, $2, $3)
