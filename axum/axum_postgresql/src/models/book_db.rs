@@ -1,6 +1,6 @@
 use axum::{
-    http::StatusCode,
     Json,
+    http::StatusCode,
 };
 use serde::{Deserialize, Serialize};
 
@@ -13,10 +13,15 @@ pub struct Book {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BookDetail {
-    pub id_num: String,
+    pub id_num: i32,
     pub title: String,
     pub author: String,
     pub genre: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BookIndex {
+    pub id_num: i32,
 }
 
 // To allow us to use BookDetail as a response from a handler, we need to

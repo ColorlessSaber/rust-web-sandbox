@@ -12,3 +12,13 @@ sudo podman run -d \
 > -e POSTGRES_PASSWORD=postgres \
 > docker.io/library/postgres:16
 ```
+
+Use the following SQL command to create the book_db in PostgreSQL.
+```postgresql
+CREATE TABLE book_db (
+    id SERIAL primary KEY,
+    title VARCHAR(255),
+    author VARCHAR(255),
+    genre VARCHAR(50)
+);
+```

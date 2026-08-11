@@ -1,15 +1,14 @@
+use crate::models::DBError;
+use crate::models::book_db::{Book, BookDetail};
 use async_trait::async_trait;
 use sqlx::PgPool;
-
-use crate::models::book_db::{Book, BookDetail};
-use crate::models::DBError;
 
 // A trait with shared
 #[async_trait]
 pub trait BookDbCrud {
     async fn create(&self, query_info: Book) -> Result<BookDetail, DBError>;
-    async fn delete(&self, index_num: String) -> Result<(), DBError>;
-    async fn get_entry(&self) -> Result<BookDetail, DBError>;
+    async fn delete(&self, index_num: i32) -> Result<(), DBError>;
+    async fn get_entry(&self, index_num: i32) -> Result<BookDetail, DBError>;
 }
 
 // struct to hold access to the database
@@ -41,18 +40,46 @@ impl BookDbCrud for BookDbImpl {
             .map_err(|e| DBError::Other(Box::new(e)))?;
 
         Ok(BookDetail {
-            id_num: query_result.id.to_string(),
+            id_num: query_result.id,
             title: query_result.title.unwrap(),
             author: query_result.author.unwrap(),
             genre: query_result.genre.unwrap(),
         })
     }
 
-    async fn delete(&self, index_num: String) -> Result<(), DBError> {
-        todo!()
+    async fn delete(&self, index_num: i32) -> Result<(), DBError> {
+        sqlx::query!(
+            r#"
+            DELETE FROM book_db
+            WHERE id = $1
+            "#,
+            index_num
+        )
+            .execute(&self.db)
+            .await
+            .map_err(|e| DBError::Other(Box::new(e)))?;
+        
+        Ok(())
     }
 
-    async fn get_entry(&self) -> Result<BookDetail, DBError> {
-        todo!()
+    async fn get_entry(&self, index_num: i32) -> Result<BookDetail, DBError> {
+        let query_result = sqlx::query!(
+            r#"
+            SELECT id, title, author, genre
+            FROM book_db
+            WHERE id = $1
+            "#,
+            index_num
+        )
+            .fetch_one(&self.db)
+            .await
+            .map_err(|e| DBError::Other(Box::new(e)))?;
+
+        Ok(BookDetail {
+            id_num: query_result.id,
+            title: query_result.title.unwrap(),
+            author: query_result.author.unwrap(),
+            genre: query_result.genre.unwrap(),
+        })
     }
 }
