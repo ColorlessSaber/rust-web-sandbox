@@ -1,4 +1,7 @@
-use axum::http::StatusCode;
+use axum::{
+    http::StatusCode,
+    Json,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -16,8 +19,10 @@ pub struct BookDetail {
     pub genre: String,
 }
 
-impl axum::response::IntoResponse for BookDetail { //TODO make this return a JSON dump versus itself
+// To allow us to use BookDetail as a response from a handler, we need to
+// implement the IntoResponse trait. it tells Axum how to handle the object.
+impl axum::response::IntoResponse for BookDetail {
     fn into_response(self) -> axum::response::Response {
-        (StatusCode::CREATED, self).into_response()
+        (StatusCode::CREATED, Json(self)).into_response()
     }
 }

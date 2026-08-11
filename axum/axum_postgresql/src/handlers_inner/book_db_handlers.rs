@@ -3,6 +3,7 @@ use axum::{
     extract::State,
     http::StatusCode,
 };
+use axum::response::IntoResponse;
 use log::error;
 use crate::models::book_db::{Book, BookDetail};
 use crate::AppState;
@@ -10,13 +11,12 @@ use crate::AppState;
 pub async fn create_new_book_entry(
     State(app_state): State<AppState>,
     Json(payload): Json<Book>,
-) -> Result<String, (StatusCode, String)> {
+) -> Result<BookDetail, (StatusCode, String)> {
     let book_database = &*app_state.book_db;
     let book = book_database.create(payload).await;
     match book {
-        Ok(book) => { 
-            println!("{:?}", book);
-            Ok("Book Created".to_owned())
+        Ok(book) => {
+            Ok(book)
         },
         Err(err) => {
             error!("Error creating new book: {:?}", err);

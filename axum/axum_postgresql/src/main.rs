@@ -49,6 +49,11 @@ async fn main() {
 }
 
 /*
+To test /hello use the cURL command:
+```
+curl -X GET http://127.0.0.1:8000/hello
+```
+
 To test /new_book use the cURL command:
 ```
 curl --location 'localhost:8000/new_book' --header 'Content-Type: application/json' \
