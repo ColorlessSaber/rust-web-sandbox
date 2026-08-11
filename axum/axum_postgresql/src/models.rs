@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-pub mod book_db;
+pub mod models_for_book_db;
 
 #[derive(Error, Debug)]
 pub enum DBError {

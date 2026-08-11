@@ -1,5 +1,5 @@
 use crate::models::DBError;
-use crate::models::book_db::{Book, BookDetail};
+use crate::models::models_for_book_db::{Book, BookDetail};
 use async_trait::async_trait;
 use sqlx::PgPool;
 

@@ -1,5 +1,5 @@
 use crate::AppState;
-use crate::models::book_db::{Book, BookDetail, BookIndex};
+use crate::models::models_for_book_db::{Book, BookDetail, BookIndex};
 use crate::handlers_inner::HandlerError;
 use axum::{
     Json,
