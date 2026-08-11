@@ -25,7 +25,9 @@ impl BookDbImpl {
 #[async_trait]
 impl BookDbCrud for BookDbImpl {
     async fn create(&self, query_info: Book) -> Result<BookDetail, DBError> {
-        let query_result = sqlx::query!( // this is a "reminder" warning; will work if sqlx is setup correctly
+        // the warning for sqlx::query! cannot be "removed". It's a reminder to set up DATABASE_URL
+        // given we are inserting data into the database.
+        let query_result = sqlx::query!(
             r#"
             INSERT INTO book_db (title, author, genre)
             VALUES ($1, $2, $3)
@@ -58,7 +60,7 @@ impl BookDbCrud for BookDbImpl {
             .execute(&self.db)
             .await
             .map_err(|e| DBError::Other(Box::new(e)))?;
-        
+
         Ok(())
     }
 

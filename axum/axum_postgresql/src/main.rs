@@ -2,7 +2,7 @@ extern crate log;
 extern crate pretty_env_logger;
 
 use crate::handlers_inner::{
-    book_db_handlers::*
+    handlers_for_book_db::*
     ,
     *};
 use axum::{
@@ -10,7 +10,7 @@ use axum::{
     routing::{delete, get, post},
     serve,
 };
-use database_queries::book_db_queries::{BookDbCrud, BookDbImpl};
+use database_queries::queries_for_book_db::{BookDbCrud, BookDbImpl};
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
@@ -43,6 +43,7 @@ async fn main() {
     // Set up the Axum application
     let app = Router::new()
         .route("/hello", get(hello_world))
+        .route("/trip_internal_error", get(trip_internal_error))
         .route("/new_book", post(create_new_book_entry))
         .route("/get_book", get(get_book_detail_by_id))
         .route("/delete_book", delete(delete_book_entry))
@@ -62,6 +63,11 @@ async fn main() {
 To test /hello use the cURL command:
 ```
 curl -X GET http://127.0.0.1:8000/hello
+```
+
+To test /trip_internal_error use the cURL command:
+```
+curl -X GET "http://127.0.0.1:8000/trip_internal_error"
 ```
 
 To test /new_book use the cURL command:

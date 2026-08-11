@@ -1,16 +1,16 @@
 use crate::AppState;
 use crate::models::book_db::{Book, BookDetail, BookIndex};
+use crate::handlers_inner::HandlerError;
 use axum::{
     Json,
     extract::State,
-    http::StatusCode,
 };
 use log::error;
 
 pub async fn create_new_book_entry(
     State(app_state): State<AppState>,
     Json(payload): Json<Book>,
-) -> Result<BookDetail, (StatusCode, String)> {
+) -> Result<BookDetail, HandlerError> {
     let book_database = &*app_state.book_db;
     let book = book_database.create(payload).await;
     match book {
@@ -19,7 +19,7 @@ pub async fn create_new_book_entry(
         },
         Err(err) => {
             error!("Error creating new book: {:?}", err);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to create book".to_owned()))
+            Err(HandlerError::BadRequest)
         }
     }
 }
@@ -27,7 +27,7 @@ pub async fn create_new_book_entry(
 pub async fn get_book_detail_by_id(
     State(app_state): State<AppState>,
     Json(payload): Json<BookIndex>
-) -> Result<BookDetail, (StatusCode, String)> {
+) -> Result<BookDetail, HandlerError> {
     let book_database = &*app_state.book_db;
     let book = book_database.get_entry(payload.id_num).await;
 
@@ -37,7 +37,7 @@ pub async fn get_book_detail_by_id(
         },
         Err(err) => {
             error!("Error getting book: {:?}", err);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to get book".to_owned()))
+            Err(HandlerError::BadRequest)
         }
     }
 }
@@ -45,7 +45,7 @@ pub async fn get_book_detail_by_id(
 pub async fn delete_book_entry(
     State(app_state): State<AppState>,
     Json(payload): Json<BookIndex>,
-) -> Result<String, (StatusCode, String)> {
+) -> Result<String, HandlerError> {
     let book_database = &*app_state.book_db;
     let book = book_database.delete(payload.id_num).await;
 
@@ -55,7 +55,7 @@ pub async fn delete_book_entry(
         },
         Err(err) => {
             error!("Error deleting book: {:?}", err);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to deleting book".to_owned()))
+            Err(HandlerError::BadRequest)
         }
     }
 }
